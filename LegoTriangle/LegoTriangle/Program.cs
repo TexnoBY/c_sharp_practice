@@ -17,21 +17,20 @@ namespace LegoTriangle
             Common
         }
         public string Color { private get; set; } 
-        private TrianglesTypes Type { set; get; }
+        private TrianglesTypes Type { set; get; } = TrianglesTypes.Common;
         static public string[] ColorsEquilateal { private set; get; } = { "red", "blue", "white", "green" };
         static public string[] ColorsRightAngled { private set; get; } = { "red", "blue" };
 
-        public double Area { private set; get; } 
+        public double Area { private set; get; } = 0;
         public Triangle((int, int) coord1, (int, int) coord2, (int, int) coord3, string color)
         {
             try
             {
+                Vector2 vec1 = new Vector2(coord1.Item1 - coord2.Item1, coord1.Item2 - coord2.Item2);
+                Vector2 vec2 = new Vector2(coord1.Item1 - coord3.Item1, coord1.Item2 - coord3.Item2);
+                Vector2 vec3 = new Vector2(coord3.Item1 - coord2.Item1, coord3.Item2 - coord2.Item2);
 
-                var side1 = Math.Sqrt(Math.Pow(coord1.Item1 - coord2.Item1, 2) + Math.Pow(coord1.Item2 - coord2.Item2, 2));
-                var side2 = Math.Sqrt(Math.Pow(coord1.Item1 - coord3.Item1, 2) + Math.Pow(coord1.Item2 - coord3.Item2, 2));
-                var side3 = Math.Sqrt(Math.Pow(coord3.Item1 - coord2.Item1, 2) + Math.Pow(coord3.Item2 - coord2.Item2, 2));
-
-                if (side1 == side2 && side1 == side3) // Equilateral
+                if (vec1.Length() == vec2.Length() && vec1.Length() == vec3.Length()) // Equilateral
                 {
                     if (ColorsEquilateal.Contains(color))
                     {
@@ -43,11 +42,13 @@ namespace LegoTriangle
                     }
                 }
 
-                if (side1 * side1 + side2 * side2 == side3 * side3
+
+                
+                if (Vector2.Dot(vec1, vec2) == 0
                     ||
-                    side1 * side1 == side2 * side2 + side3 * side3
+                    Vector2.Dot(vec1, vec3) == 0
                     ||
-                    side2 * side2 == side1 * side1 + side3 * side3)
+                    Vector2.Dot(vec3, vec2) == 0)
                 {
                     if (ColorsRightAngled.Contains(color))
                     {
@@ -58,20 +59,22 @@ namespace LegoTriangle
                         throw new WrongTriangle("Wrong triangle's type or color");
                     }
                 }
+
+                Area = AreaCalculate(coord1, coord2, coord3);
             }
             catch (WrongTriangle ex)
             {
                 Console.WriteLine("Error:" + ex.Message);
             }
 
-            Area = AreaCalculate(coord1, coord2, coord3);
+            
         }
 
         public double AreaCalculate ((int, int) coord1, (int, int) coord2, (int, int) coord3)
         {
            
-            Area = 0.5 * ((coord1.Item1 - coord2.Item1) * (coord1.Item2 - coord3.Item2)) - ((coord1.Item2 - coord2.Item2) * coord1.Item1 - coord3.Item1);
-            return Area;
+            double area = 0.5 * (((coord1.Item1 - coord2.Item1) * (coord1.Item2 - coord3.Item2)) - ((coord1.Item2 - coord2.Item2) * (coord1.Item1 - coord3.Item1)));
+            return area;
         }
 
         public void Print()
@@ -86,8 +89,14 @@ namespace LegoTriangle
 
         static void Main(string[] args)
         {
-            Triangle tr = new Triangle((1, 3), (0, 4), (15, -3), "red");
+            Triangle tr = new Triangle((1, 3), (0, 4), (15, -3), "qwer");
             tr.Print();
+            Triangle rightAngle = new Triangle((0, 0), (0, 3), (3, 0), "red");
+            rightAngle.Print();
+
+
+            Triangle equal = new Triangle((0, 0), (1, 3), (3, 1), "red");
+            equal.Print();
         }
     }
 }
